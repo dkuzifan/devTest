@@ -10,9 +10,10 @@ export default function HomePage() {
         <h1 className="text-6xl font-bold text-blue-600">
           Hello, Next.js!
         </h1>
-        <p className="mt-4 text-xl text-gray-600">
-          상호작용이 가능한 웹사이트입니다.
-        </p>
+        <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 mb-8">
+        {/* ▲ dark:text-gray-300 추가 (다크모드일 땐 밝은 회색으로) */}
+        내가 직접 만든 첫 번째 페이지입니다.
+      </p>
       </div>
 
       {/* 2. 카운터 설치 */}

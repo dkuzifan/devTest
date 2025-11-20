@@ -8,10 +8,13 @@ export default function Counter() {
   const [count, setCount] = useState(0);
 
   return (
-    <div className="flex flex-col items-center p-6 border rounded-lg shadow-lg bg-white max-w-xs mx-auto">
+    // ▼ bg-white 뒤에 dark:bg-gray-700 추가
+    <div className="flex flex-col items-center p-6 border rounded-lg shadow-lg bg-white dark:bg-gray-800 dark:border-gray-700 max-w-xs mx-auto">
+      
       <h2 className="text-xl font-bold mb-4">숫자 세기</h2>
       
-      <div className="text-6xl font-bold text-blue-600 mb-6">
+      {/* 숫자 색상도 다크모드에선 흰색으로 잘 보이게 조정 */}
+      <div className="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-6">
         {count}
       </div>
 

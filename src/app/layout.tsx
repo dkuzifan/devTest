@@ -2,7 +2,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar"; // 1. 부품 가져오기 (Import)
+import Navbar from "@/components/Navbar";
+import Providers from "@/components/Providers"; // 1. 포장지 가져오기
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,18 +18,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        {/* 2. 길었던 코드 대신 단 한 줄로 끝! */}
-        <Navbar />
-
-        <main className="p-4">
-          {children}
-        </main>
-        
-        <footer className="p-4 bg-gray-100 text-center text-xs text-gray-500 mt-10">
-          © 2025 My First Next.js App
-        </footer>
+    <html lang="en" suppressHydrationWarning>
+      {/* ▼ 여기 className을 수정하세요! ▼ */}
+      <body className={`${inter.className} bg-white dark:bg-gray-900 text-black dark:text-white`}>
+        <Providers>
+          <Navbar />
+          <main className="p-4">{children}</main>
+          <footer className="p-4 bg-gray-100 dark:bg-gray-900 text-center text-xs text-gray-500 mt-10">
+            © 2025 My First Next.js App
+          </footer>
+        </Providers>
       </body>
     </html>
   );
