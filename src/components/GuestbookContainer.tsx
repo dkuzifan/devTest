@@ -1,7 +1,7 @@
 // src/components/GuestbookContainer.tsx
 "use client";
 
-import { useState, useEffect } from "react"; // useEffect 추가!
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -18,20 +18,25 @@ export default function GuestbookContainer({ initialPosts }: { initialPosts: Pos
   const [nickname, setNickname] = useState("");
   const router = useRouter();
 
-  // ▼▼▼ 1. [불러오기] 페이지가 처음 뜰 때, 로컬 저장소 확인 ▼▼▼
+  // [1. 불러오기] 서버 데이터가 바뀌거나, 페이지가 처음 뜰 때 실행
   useEffect(() => {
-    // 개발 환경에서만 실행
+    // 우선 서버 데이터로 초기화
+    let currentPosts = initialPosts;
+
+    // 개발 환경이라면? 세션 저장소(Session Storage) 확인!
     if (process.env.NODE_ENV === "development") {
-      // 1. 'my_local_posts'라는 이름으로 저장된 게 있는지 확인
-      const savedData = localStorage.getItem("my_local_posts");
+      const savedData = sessionStorage.getItem("my_session_posts");
       
       if (savedData) {
-        const localPosts = JSON.parse(savedData);
-        // 2. 서버 데이터(initialPosts) 앞에 로컬 데이터(localPosts)를 합침
-        setPosts([...localPosts, ...initialPosts]);
+        const sessionPosts = JSON.parse(savedData);
+        // 서버 데이터 앞에 세션(가짜) 데이터를 합침
+        currentPosts = [...sessionPosts, ...initialPosts];
       }
     }
-  }, [initialPosts]); // initialPosts가 바뀔 때마다 실행
+    
+    // 합쳐진 데이터로 화면 업데이트
+    setPosts(currentPosts);
+  }, [initialPosts]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +46,7 @@ export default function GuestbookContainer({ initialPosts }: { initialPosts: Pos
     const isDev = process.env.NODE_ENV === "development";
 
     if (isDev) {
-      // ▼▼▼ 2. [저장하기] 가짜 데이터를 로컬 저장소에 넣기 ▼▼▼
+      // [2. 저장하기] 개발 환경: 세션 저장소에 저장 (탭 닫으면 사라짐)
       const fakePost = {
         id: Date.now(),
         content: content,
@@ -49,26 +54,24 @@ export default function GuestbookContainer({ initialPosts }: { initialPosts: Pos
         created_at: new Date().toISOString(),
       };
 
-      // 화면 업데이트
+      // 1) 화면 즉시 업데이트
       setPosts([fakePost, ...posts]);
 
-      // 로컬 스토리지 업데이트
-      // 1) 기존에 저장된 거 가져오기
-      const existingData = localStorage.getItem("my_local_posts");
+      // 2) 세션 스토리지 업데이트
+      const existingData = sessionStorage.getItem("my_session_posts");
       const existingPosts = existingData ? JSON.parse(existingData) : [];
       
-      // 2) 새 글을 맨 앞에 추가해서 다시 저장하기
-      const newLocalPosts = [fakePost, ...existingPosts];
-      localStorage.setItem("my_local_posts", JSON.stringify(newLocalPosts));
+      const newSessionPosts = [fakePost, ...existingPosts];
+      sessionStorage.setItem("my_session_posts", JSON.stringify(newSessionPosts));
 
-      console.log("개발 모드: 로컬 스토리지에 저장됨 (새로고침 해도 유지됨)");
+      console.log("개발 모드: 세션 스토리지에 저장됨 (새로고침 유지 / 탭 닫으면 삭제)");
 
       setContent("");
       setNickname("");
-      return;
+      return; 
     }
 
-    // --- 배포 환경 코드는 기존과 동일 ---
+    // --- 배포 환경 (실제 DB 저장) ---
     const { error } = await supabase
       .from("guestbook")
       .insert([{ content, nickname }]);
